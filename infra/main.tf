@@ -23,25 +23,26 @@ resource "aws_security_group" "frontend" {
     name = "frontend_security_group"
     description = "Security group for ELB"
     vpc_id = "${var.vpc_id}"
+}
 
-    ingress {
-        from_port = 80 
-        to_port = 80
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-    egress {
-      from_port = 8080
-      to_port = 8080
-      protocol = "tcp"
-      security_groups = ["${aws_security_group.nomad_worker.id}"]
-   }
-    egress {
-      from_port = 8081
-      to_port = 8081
-      protocol = "tcp"
-      security_groups = ["${aws_security_group.nomad_worker.id}"]
-   }
+resource "aws_security_group_rule" "frontend_allow_all" {
+    type = "ingress"
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+
+    security_group_id = "${aws_security_group.frontend.id}"
+}
+
+resource "aws_security_group_rule" "frontend_to_nomad_worker" {
+    type = "egress"
+    from_port = 8080
+    to_port = 8081
+    protocol = "tcp"
+
+    security_group_id = "${aws_security_group.frontend.id}"
+    source_security_group_id = "${aws_security_group.nomad_worker.id}"
 }
 
 resource "aws_launch_configuration" "nomad_worker" {
