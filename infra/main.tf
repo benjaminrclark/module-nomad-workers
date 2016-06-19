@@ -23,13 +23,13 @@ resource "template_file" "private_user_data" {
   }
 }
 
-resource "aws_security_group" "nomad_private_worker" {
+resource "aws_security_group" "private_nomad_worker" {
     name = "nomad_worker_security_group"
-    description = "Security group for public nomad workers"
+    description = "Security group for private nomad workers"
     vpc_id = "${var.vpc_id}"
 }
 
-resource "aws_security_group" "nomad_public_worker" {
+resource "aws_security_group" "public_nomad_worker" {
     name = "nomad_worker_security_group"
     description = "Security group for public nomad workers"
     vpc_id = "${var.vpc_id}"
@@ -58,26 +58,26 @@ resource "aws_security_group_rule" "frontend_to_nomad_worker" {
     protocol = "tcp"
 
     security_group_id = "${aws_security_group.frontend.id}"
-    source_security_group_id = "${aws_security_group.nomad_public_worker.id}"
+    source_security_group_id = "${aws_security_group.public_nomad_worker.id}"
 }
 
-resource "aws_launch_configuration" "nomad_public_worker" {
+resource "aws_launch_configuration" "private_nomad_worker" {
   instance_type          = "${var.instance_type}"
   image_id               = "${var.ami}"
   key_name               = "${var.key_name}"
-  security_groups        = ["${var.consul_cluster_security_group}","${aws_security_group.nomad_public_worker.id}"]
-  user_data              = "${template_file.user_data_public.rendered}"
+  security_groups        = ["${var.consul_cluster_security_group}","${aws_security_group.public_nomad_worker.id}"]
+  user_data              = "${template_file.public_user_data.rendered}"
   lifecycle {
       create_before_destroy = true
   }
 }
 
-resource "aws_launch_configuration" "nomad_private_worker" {
+resource "aws_launch_configuration" "private_nomad_worker" {
   instance_type          = "${var.instance_type}"
   image_id               = "${var.ami}"
   key_name               = "${var.key_name}"
-  security_groups        = ["${var.consul_cluster_security_group}","${aws_security_group.nomad_private_worker.id}"]
-  user_data              = "${template_file.user_data_private.rendered}"
+  security_groups        = ["${var.consul_cluster_security_group}","${aws_security_group.private_nomad_worker.id}"]
+  user_data              = "${template_file.private_user_data.rendered}"
   lifecycle {
       create_before_destroy = true
   }
@@ -110,9 +110,9 @@ resource "aws_elb" "frontend" {
   }
 }
 
-resource "aws_autoscaling_group" "nomad_public_workers" {
-  name                 = "nomad_public_worker_asg"
-  launch_configuration = "${aws_launch_configuration.nomad_public_worker.name}"
+resource "aws_autoscaling_group" "public_nomad_workers" {
+  name                 = "public_nomad_worker_asg"
+  launch_configuration = "${aws_launch_configuration.public_nomad_worker.name}"
   load_balancers = ["${aws_elb.frontend.name}"]
   min_size         = "${var.public_servers_count}"
   max_size         = "${var.public_servers_count}"
@@ -122,9 +122,9 @@ resource "aws_autoscaling_group" "nomad_public_workers" {
   }
 }
 
-resource "aws_autoscaling_group" "nomad_private_workers" {
-  name                 = "nomad_private_worker_asg"
-  launch_configuration = "${aws_launch_configuration.nomad_private_worker.name}"
+resource "aws_autoscaling_group" "private_nomad_workers" {
+  name                 = "private_nomad_worker_asg"
+  launch_configuration = "${aws_launch_configuration.private_nomad_worker.name}"
   min_size         = "${var.private_servers_count}"
   max_size         = "${var.private_servers_count}"
   vpc_zone_identifier  = ["${split(",", var.private_subnet_ids)}"]
