@@ -22,6 +22,7 @@ NOMAD_FILE_FINAL=/etc/nomad.d/nomad.json
 NOMAD_FILE_TMP=$NOMAD_FILE_FINAL.tmp
 
 sudo sed -i -- "s/{{ region }}/${region}/g" $NOMAD_FILE_TMP
+sudo sed -i -- "s/{{ metadata }}/${metadata}/g" $NOMAD_FILE_TMP
 
 # Note: placeholders below replaced by bash, not the Terraform go template.
 METADATA_INSTANCE_ID=`curl http://169.254.169.254/2014-02-25/meta-data/instance-id`

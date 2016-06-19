@@ -10,7 +10,7 @@ resource "template_file" "public_user_data" {
   vars {
    region                 = "${var.aws_region}"
    server_addresses       = "${join(",",formatlist("#%s#",split(",",var.consul_servers)))}" 
-   metadata               = "public"
+   metadata               = "\"subnet\": \"public\""
   }
 }
 
@@ -19,7 +19,7 @@ resource "template_file" "private_user_data" {
   vars {
    region                 = "${var.aws_region}"
    server_addresses       = "${join(",",formatlist("#%s#",split(",",var.consul_servers)))}" 
-   metadata               = "private"
+   metadata               = "\"subnet\": \"private\""
   }
 }
 
