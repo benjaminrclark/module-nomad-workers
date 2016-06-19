@@ -29,7 +29,7 @@ variable "ami" {
     description = "AMI to use for the nomad workers"
 }
 
-variable "consul_security_group" {
+variable "consul_cluster_security_group" {
     description = "Security group for consul"
 }
 
@@ -37,17 +37,28 @@ variable "key_name" {
     description = "SSH key name"
 }
 
-
-variable "subnet_ids" {
-    description = "Subnet IDs"
+variable "public_subnet_ids" {
+    description = "Public subnet IDs"
 }
 
-variable "subnet_cidrs" {
-   description = "Subnet CIDRs"
+variable "public_subnet_cidrs" {
+   description = "Public subnet CIDRs"
 }
 
-variable "subnet_availability_zones" {
-  description = "Subnet availability zones"
+variable "public_subnet_availability_zones" {
+  description = "Public subnet availability zones"
+}
+
+variable "private_subnet_ids" {
+    description = "Private subnet IDs"
+}
+
+variable "private_subnet_cidrs" {
+   description = "Private subnet CIDRs"
+}
+
+variable "private_subnet_availability_zones" {
+  description = "Private subnet availability zones"
 }
 
 variable "vpc_cidr" {
@@ -58,17 +69,20 @@ variable "vpc_id" {
     description = "VPC ID"
 }
 
-
 variable "instance_type" {
     description = "Instance type for the nomad workers"
     default = "c4.large"
 }
 
-variable "servers_count" {
-    description = "Number of workers to create"
+variable "public_servers_count" {
+    description = "Number of public workers to create"
     default = "1"
 }
 
+variable "private_servers_count" {
+    description = "Number of private workers to create"
+    default = "1"
+}
 
 variable "route53_zone_id" {
     description = "Zone id for route53 hosted zone"
