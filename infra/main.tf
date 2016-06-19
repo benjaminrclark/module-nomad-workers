@@ -5,11 +5,21 @@ provider "aws" {
   region     = "${var.aws_region}"
 }
 
-resource "template_file" "user_data" {
+resource "template_file" "public_user_data" {
   template = "${file("${path.module}/consul_update.sh.tpl")}"
   vars {
    region                 = "${var.aws_region}"
    server_addresses       = "${join(",",formatlist("#%s#",split(",",var.consul_servers)))}" 
+   metadata               = "public"
+  }
+}
+
+resource "template_file" "private_user_data" {
+  template = "${file("${path.module}/consul_update.sh.tpl")}"
+  vars {
+   region                 = "${var.aws_region}"
+   server_addresses       = "${join(",",formatlist("#%s#",split(",",var.consul_servers)))}" 
+   metadata               = "private"
   }
 }
 
@@ -75,7 +85,7 @@ resource "aws_launch_configuration" "nomad_private_worker" {
 
 resource "aws_elb" "frontend" {
   name = "nomad-elb"
-  subnets =  ["${split(",", var.subnet_ids)}"]
+  subnets =  ["${split(",", var.public_subnet_ids)}"]
   cross_zone_load_balancing = true
   idle_timeout = 400
   connection_draining = true
