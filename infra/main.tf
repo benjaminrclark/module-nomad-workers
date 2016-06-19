@@ -61,7 +61,7 @@ resource "aws_security_group_rule" "frontend_to_nomad_worker" {
     source_security_group_id = "${aws_security_group.public_nomad_worker.id}"
 }
 
-resource "aws_launch_configuration" "private_nomad_worker" {
+resource "aws_launch_configuration" "public_nomad_worker" {
   instance_type          = "${var.instance_type}"
   image_id               = "${var.ami}"
   key_name               = "${var.key_name}"
