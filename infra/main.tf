@@ -24,13 +24,13 @@ resource "template_file" "private_user_data" {
 }
 
 resource "aws_security_group" "private_nomad_worker" {
-    name = "nomad_worker_security_group"
+    name = "private_nomad_worker_security_group"
     description = "Security group for private nomad workers"
     vpc_id = "${var.vpc_id}"
 }
 
 resource "aws_security_group" "public_nomad_worker" {
-    name = "nomad_worker_security_group"
+    name = "public_nomad_worker_security_group"
     description = "Security group for public nomad workers"
     vpc_id = "${var.vpc_id}"
 }
